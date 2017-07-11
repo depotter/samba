@@ -50,7 +50,7 @@ if bld.CONFIG_SET('HAVE_GPFS'):
 bld.SAMBA_LIBRARY('samba-debug',
                   source='debug.c',
                   deps='replace time-basic close-low-fd talloc socket-blocking' + samba_debug_add_deps,
-                  public_deps='systemd systemd-journal lttng-ust',
+                  public_deps='lttng-ust',
                   local_include=False,
                   includes=samba_debug_add_inc,
                   private_library=True)
@@ -123,7 +123,7 @@ else:
                     server_id.c dprintf.c pidfile.c
                     tevent_debug.c memcache.c unix_match.c tfork.c''',
                   deps='samba-util-core DYNCONFIG close-low-fd tini tiniparser genrand',
-                  public_deps='talloc tevent execinfo pthread LIBCRYPTO charset util_setid systemd systemd-daemon',
+                  public_deps='talloc tevent execinfo pthread LIBCRYPTO charset util_setid',
                   public_headers='debug.h attr.h byteorder.h data_blob.h memory.h safe_string.h time.h talloc_stack.h string_wrappers.h idtree.h idtree_random.h blocking.h signal.h substitute.h fault.h genrand.h tfork.h',
                   header_path= [ ('dlinklist.h samba_util.h', '.'), ('*', 'util') ],
                   local_include=False,

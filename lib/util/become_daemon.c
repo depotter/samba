@@ -24,9 +24,6 @@
 #include "includes.h"
 #include "system/filesys.h"
 #include "system/locale.h"
-#if defined(HAVE_LIBSYSTEMD_DAEMON) || defined(HAVE_LIBSYSTEMD)
-#include <systemd/sd-daemon.h>
-#endif
 #include "lib/util/close_low_fd.h"
 
 /*******************************************************************
@@ -69,9 +66,6 @@ _PUBLIC_ void become_daemon(bool do_fork, bool no_process_group, bool log_stdout
 	if (do_fork) {
 		newpid = fork();
 		if (newpid) {
-#if defined(HAVE_LIBSYSTEMD_DAEMON) || defined(HAVE_LIBSYSTEMD)
-			sd_notifyf(0, "READY=0\nSTATUS=Starting process...\nMAINPID=%lu", (unsigned long) newpid);
-#endif /* HAVE_LIBSYSTEMD_DAEMON */
 			_exit(0);
 		}
 	}
@@ -98,16 +92,6 @@ _PUBLIC_ void become_daemon(bool do_fork, bool no_process_group, bool log_stdout
 
 _PUBLIC_ void exit_daemon(const char *msg, int error)
 {
-#if defined(HAVE_LIBSYSTEMD_DAEMON) || defined(HAVE_LIBSYSTEMD)
-	if (msg == NULL) {
-		msg = strerror(error);
-	}
-
-	sd_notifyf(0, "STATUS=daemon failed to start: %s\n"
-				  "ERRNO=%i",
-				  msg,
-				  error);
-#endif
 	DEBUG(0, ("STATUS=daemon failed to start: %s, error code %d\n", msg, error));
 	exit(1);
 }
@@ -117,9 +101,6 @@ _PUBLIC_ void daemon_ready(const char *name)
 	if (name == NULL) {
 		name = "Samba";
 	}
-#if defined(HAVE_LIBSYSTEMD_DAEMON) || defined(HAVE_LIBSYSTEMD)
-	sd_notifyf(0, "READY=1\nSTATUS=%s: ready to serve connections...", name);
-#endif
 	DEBUG(0, ("STATUS=daemon '%s' finished starting up and ready to serve "
 		  "connections\n", name));
 }
@@ -129,8 +110,5 @@ _PUBLIC_ void daemon_status(const char *name, const char *msg)
 	if (name == NULL) {
 		name = "Samba";
 	}
-#if defined(HAVE_LIBSYSTEMD_DAEMON) || defined(HAVE_LIBSYSTEMD)
-	sd_notifyf(0, "\nSTATUS=%s: %s", name, msg);
-#endif
 	DEBUG(0, ("STATUS=daemon '%s' : %s", name, msg));
 }

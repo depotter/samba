@@ -579,13 +579,11 @@ _PUBLIC_ void become_daemon(bool do_fork, bool no_process_group, bool log_stdout
 
 /**
  Exit daemon and print error message to the log at level 0
- Optionally report failure to systemd if systemd integration is enabled
 **/
 _PUBLIC_ void exit_daemon(const char *msg, int error);
 
 /**
  Report that the daemon is ready to serve connections to the log at level 0
- Optionally report status to systemd if systemd integration is enabled
 **/
 _PUBLIC_ void daemon_ready(const char *daemon);
 

@@ -98,30 +98,6 @@ conf.CHECK_CODE('struct statvfs buf; buf.f_flags = 0',
                 local_include=False,
                 execute=False)
 
-#
-# systemd removed the libsystemd-daemon and libsystemd-journal libraries. In newer
-# versions it is only libsystemd. As waf pkg-config handling does not provide
-# targets which could be used as a dependency based on the package name we need
-# to look for them on our own. This enabled one of the library targets based on
-# which version we detect.
-#
-conf.SET_TARGET_TYPE('systemd-daemon', 'EMPTY')
-conf.SET_TARGET_TYPE('systemd-journal', 'EMPTY')
-conf.SET_TARGET_TYPE('systemd', 'EMPTY')
-
-if Options.options.enable_systemd != False:
-    r_daemon = conf.CHECK_CFG(package='libsystemd-daemon', args='--cflags --libs',
-                   msg='Checking for libsystemd-daemon')
-    r_journal = conf.CHECK_CFG(package='libsystemd-journal', args='--cflags --libs',
-                   msg='Checking for libsystemd-journal')
-    if r_daemon is None and r_journal is None:
-        conf.CHECK_CFG(package='libsystemd', args='--cflags --libs',
-                   msg='Checking for libsystemd')
-        conf.CHECK_LIB('systemd', shlib=True)
-    else:
-        conf.CHECK_LIB('systemd-daemon', shlib=True)
-        conf.CHECK_LIB('systemd-journal', shlib=True)
-
 if Options.options.enable_lttng != False:
     conf.CHECK_CFG(package='lttng-ust', args='--cflags --libs',
                    msg='Checking for lttng-ust', uselib_store="LTTNG-UST")

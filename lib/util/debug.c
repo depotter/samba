@@ -103,35 +103,6 @@ static struct {
 	.fd = 2 /* stderr by default */
 };
 
-#if defined(WITH_SYSLOG) || defined(HAVE_LIBSYSTEMD_JOURNAL) || defined(HAVE_LIBSYSTEMD)
-static int debug_level_to_priority(int level)
-{
-	/*
-	 * map debug levels to syslog() priorities
-	 */
-	static const int priority_map[] = {
-		LOG_ERR,     /* 0 */
-		LOG_WARNING, /* 1 */
-		LOG_NOTICE,  /* 2 */
-		LOG_NOTICE,  /* 3 */
-		LOG_NOTICE,  /* 4 */
-		LOG_NOTICE,  /* 5 */
-		LOG_INFO,    /* 6 */
-		LOG_INFO,    /* 7 */
-		LOG_INFO,    /* 8 */
-		LOG_INFO,    /* 9 */
-	};
-	int priority;
-
-	if( level >= ARRAY_SIZE(priority_map) || level < 0)
-		priority = LOG_DEBUG;
-	else
-		priority = priority_map[level];
-
-	return priority;
-}
-#endif
-
 /* -------------------------------------------------------------------------- **
  * Debug backends. When logging to DEBUG_FILE, send the log entries to
  * all active backends.
@@ -183,18 +154,6 @@ static void debug_syslog_log(int msg_level,
 	syslog(priority, "%s", msg);
 }
 #endif /* WITH_SYSLOG */
-
-#if defined(HAVE_LIBSYSTEMD_JOURNAL) || defined(HAVE_LIBSYSTEMD)
-#include <systemd/sd-journal.h>
-static void debug_systemd_log(int msg_level,
-			      const char *msg, const char *msg_no_nl)
-{
-	sd_journal_send("MESSAGE=%s", msg_no_nl,
-			"PRIORITY=%d", debug_level_to_priority(msg_level),
-			"LEVEL=%d", msg_level,
-			NULL);
-}
-#endif
 
 #ifdef HAVE_LTTNG_TRACEF
 #include <lttng/tracef.h>
@@ -333,13 +292,6 @@ static struct debug_backend {
 		.name = "syslog",
 		.reload = debug_syslog_reload,
 		.log = debug_syslog_log,
-	},
-#endif
-
-#if defined(HAVE_LIBSYSTEMD_JOURNAL) || defined(HAVE_LIBSYSTEMD)
-	{
-		.name = "systemd",
-		.log = debug_systemd_log,
 	},
 #endif
 
